@@ -1,0 +1,87 @@
+handwriting-clone/
+│
+├── frontend/
+│   ├── index.html  ← Main HTML page
+│   ├── style.css    ← Website styling
+│   └── script.js    ← JavaScript logic
+│
+└── backend/
+    ├── app.py        ← Flask backend
+    └── requirements.txt  ← Python libraries
+
+
+
+// --- frontend/index.html ---
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Handwriting Clone</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Upload Handwriting Sample</h1>
+  <input type="file" id="upload">
+
+  <h2>Type Text to Convert</h2>
+  <textarea id="userText"></textarea>
+
+  <button onclick="generatePDF()">Generate</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+// --- frontend/style.css ---
+body {
+  font-family: sans-serif;
+  padding: 20px;
+}
+input, textarea {
+  margin: 10px 0;
+  display: block;
+  width: 300px;
+}
+
+
+// --- frontend/script.js ---
+function generatePDF() {
+  const text = document.getElementById('userText').value;
+  fetch('https://your-backend-url.pythonanywhere.com/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
+  })
+  .then(res => res.blob())
+  .then(blob => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'handwriting.pdf';
+    link.click();
+  });
+}
+
+
+// --- backend/app.py ---
+from flask import Flask, request, send_file
+from flask_cors import CORS
+import io
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/generate', methods=['POST'])
+def generate():
+    data = request.get_json()
+    text = data.get('text', '')
+
+    # Placeholder: Replace with handwriting AI logic
+    with open("temp.txt", "w") as f:
+        f.write(text)
+
+    return send_file("temp.txt", as_attachment=True, download_name="handwriting.pdf")
+
+
+// --- backend/requirements.txt ---
+flask
+flask-cors
